@@ -1,6 +1,6 @@
 package com.pluralsight.entertainmentmgr.track.services;
 
-import com.pluralsight.entertainmentmgr.track.model.TrackDto;
+import com.pluralsight.entertainmentmgr.track.models.TrackDto;
 import com.pluralsight.entertainmentmgr.track.repositories.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

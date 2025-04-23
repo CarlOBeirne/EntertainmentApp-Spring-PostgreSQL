@@ -1,5 +1,6 @@
-package com.pluralsight.entertainmentmgr.track.entities;
+package com.pluralsight.entertainmentmgr.artist.entities;
 
+import com.pluralsight.entertainmentmgr.artist.enums.ArtistType;
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -9,24 +10,27 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
-@Entity
 @EqualsAndHashCode(callSuper = true)
-@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Track extends BaseEntity {
+@SuperBuilder
+@Entity
+public class Artist extends BaseEntity {
 
     @EqualsAndHashCode.Include
-    private String title;
+    private String name;
 
     @EqualsAndHashCode.Include
-    private int durationSeconds;
+    private ArtistType artistType;
 
-//    TODO: Create genre feature with separate entity
+    // TODO: Leverage genres table for list of genres
+
+    private String biography;
 
     @EqualsAndHashCode.Include
-    private int yearReleased;
+    private String nationality;
 
     @EqualsAndHashCode.Include
-    private int beatsPerMinute;
+    private int yearFounded;
+
 }

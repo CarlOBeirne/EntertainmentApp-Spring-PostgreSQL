@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: entertainment-mgr-spring-psql
+  datasource:
+    url: jdbc:postgresql://localhost:5432/entertainment_capstone_3
+    username: ${POSTGRES_LOCAL_USER:postgres}
+    password: ${POSTGRES_LOCAL_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

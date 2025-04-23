@@ -1,4 +1,4 @@
-package com.pluralsight.entertainmentmgr.core.base_entity;
+package com.pluralsight.entertainmentmgr.core.auditable.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
