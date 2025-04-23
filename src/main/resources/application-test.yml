@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/entertainment_capstone_3_test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
