@@ -24,7 +24,7 @@ public class ArtistDataService {
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
 
-    public Optional<ArtistDto> findArtistById(Long artistId) {
+    public Optional<ArtistDto> findArtistById(@NonNull Long artistId) {
         Optional<Artist> optionalArtist = artistRepository.findById(artistId);
         return optionalArtist.map(artistMapper::toDTO);
     }
@@ -59,13 +59,13 @@ public class ArtistDataService {
             throw new InvalidArtistException("Discrepancy between id and artist id");
         }
         Optional<Artist> optionalArtist = artistRepository.findById(artistDto.getId());
-        Artist entity = findAndReturnArtistEntity(optionalArtist);
-        if (entity == null) {
+        Artist artistEntity = findAndReturnArtistEntity(optionalArtist);
+        if (artistEntity == null) {
             throw new InvalidArtistException("No artist found");
         }
-        artistMapper.updateEntityFromDto(artistDto, entity);
-        artistRepository.save(entity);
-        return artistMapper.toDTO(entity);
+        artistMapper.updateEntityFromDto(artistDto, artistEntity);
+        artistRepository.save(artistEntity);
+        return artistMapper.toDTO(artistEntity);
     }
 
     @Transactional
