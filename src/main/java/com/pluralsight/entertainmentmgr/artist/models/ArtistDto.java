@@ -6,15 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public class ArtistDto extends BaseDto {
     private String name;
     private ArtistType artistType;
     private String biography;
     private String nationality;
     private int yearFounded;
+
 }

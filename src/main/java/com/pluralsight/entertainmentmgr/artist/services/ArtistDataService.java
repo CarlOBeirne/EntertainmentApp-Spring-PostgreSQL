@@ -5,6 +5,7 @@ import com.pluralsight.entertainmentmgr.artist.mapper.ArtistMapper;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidArtistException;
+import io.micrometer.common.lang.NonNullApi;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@NonNullApi
 public class ArtistDataService {
 
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
 
-    public Optional<ArtistDto> findArtistById(@NonNull Long artistId) {
+    public Optional<ArtistDto> findArtistById(Long artistId) {
         Optional<Artist> optionalArtist = artistRepository.findById(artistId);
         return optionalArtist.map(artistMapper::toDTO);
     }
@@ -33,10 +35,15 @@ public class ArtistDataService {
                 .toList();
     }
 
+    public List<ArtistDto> findArtistsByName(@NonNull String name) {
+        return artistRepository.findAllByNameIgnoreCase(name).stream()
+                .map(artistMapper::toDTO)
+                .toList();
+    }
+
     @Transactional
-    public ArtistDto createArtist(@NonNull ArtistDto artistDto) throws InvalidArtistException{
+    public ArtistDto createArtist(@NonNull ArtistDto artistDto) {
         if (artistDto.getId() != null) {
-            log.warn("Artist passed with Id {}", artistDto.getId());
             throw new InvalidArtistException("Attempted to create a new artist that already has an Id");
         }
         Artist artistEntity = artistMapper.toEntity(artistDto);
@@ -44,11 +51,31 @@ public class ArtistDataService {
         return artistMapper.toDTO(persistedArtist);
     }
 
-    public ArtistDto updateArtist(ArtistDto artistDto) {
-        return null;
+    @Transactional
+    public ArtistDto updateArtist(@NonNull Long id, @NonNull ArtistDto artistDto) {
+        if (artistDto.getId() == null) {
+            throw new InvalidArtistException("Cannot update an artist that does not have an Id");
+        } else if (!id.equals(artistDto.getId())) {
+            throw new InvalidArtistException("Discrepancy between id and artist id");
+        }
+        Optional<Artist> optionalArtist = artistRepository.findById(artistDto.getId());
+        Artist entity = findAndReturnArtistEntity(optionalArtist);
+        if (entity == null) {
+            throw new InvalidArtistException("No artist found");
+        }
+        artistMapper.updateEntityFromDto(artistDto, entity);
+        artistRepository.save(entity);
+        return artistMapper.toDTO(entity);
     }
 
-    public void deleteArtist(Long artistId) {
-
+    @Transactional
+    public void deleteArtist(@NonNull Long artistId) {
+        artistRepository.findById(artistId).ifPresent(artistRepository::delete);
     }
+
+    private Artist findAndReturnArtistEntity(Optional<Artist> optionalArtist) {
+        return optionalArtist.orElse(null);
+    }
+
+
 }
