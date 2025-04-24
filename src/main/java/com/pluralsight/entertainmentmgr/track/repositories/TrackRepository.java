@@ -1,7 +1,9 @@
 package com.pluralsight.entertainmentmgr.track.repositories;
 
+import com.pluralsight.entertainmentmgr.track.entities.Track;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TrackRepository {
+public interface TrackRepository extends JpaRepository<Track, Long> {
 }

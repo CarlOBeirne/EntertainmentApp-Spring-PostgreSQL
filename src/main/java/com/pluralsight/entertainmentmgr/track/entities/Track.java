@@ -22,8 +22,6 @@ public class Track extends BaseEntity {
     @EqualsAndHashCode.Include
     private int durationSeconds;
 
-//    TODO: Create genre feature with separate entity
-
     @EqualsAndHashCode.Include
     private int yearReleased;
 
