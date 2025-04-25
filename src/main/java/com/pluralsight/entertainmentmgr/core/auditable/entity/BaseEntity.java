@@ -4,26 +4,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@SuperBuilder(toBuilder = true)
-public abstract class BaseEntity {
+@AllArgsConstructor
+@SuperBuilder
+public abstract class BaseEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @CreationTimestamp
-    @EqualsAndHashCode.Exclude
-    private LocalDateTime created;
 }

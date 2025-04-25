@@ -22,6 +22,7 @@ public class ArtistController {
 
     private final ArtistDataService artistDataService;
 
+//    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(path = "/new")
     public ResponseEntity<ArtistDto> createArtist(@NonNull @RequestBody ArtistDto artist)  {
         try {
@@ -33,6 +34,7 @@ public class ArtistController {
         } catch (InvalidArtistException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Error creating new artist with exception", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }

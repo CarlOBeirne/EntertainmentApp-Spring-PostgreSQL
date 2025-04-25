@@ -11,11 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Entity
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
-@Entity
 @Table(name = "artist")
 public class Artist extends BaseEntity {
 
