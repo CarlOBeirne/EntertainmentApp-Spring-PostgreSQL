@@ -23,7 +23,7 @@ public class ArtistController {
     private final ArtistDataService artistDataService;
 
     @PostMapping(path = "/new")
-    public ResponseEntity<ArtistDto> createArtist(@RequestBody ArtistDto artist)  {
+    public ResponseEntity<ArtistDto> createArtist(@NonNull @RequestBody ArtistDto artist)  {
         try {
             if (artist.getId() != null) {
                 log.warn("Artist was passed with an Id of {} (expecting Id to be null)", artist.getId());

@@ -5,7 +5,6 @@ import com.pluralsight.entertainmentmgr.artist.mapper.ArtistMapper;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidArtistException;
-import io.micrometer.common.lang.NonNullApi;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@NonNullApi
 public class ArtistDataService {
 
     private final ArtistRepository artistRepository;
