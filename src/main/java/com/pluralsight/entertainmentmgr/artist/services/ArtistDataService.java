@@ -5,6 +5,7 @@ import com.pluralsight.entertainmentmgr.artist.mapper.ArtistMapper;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidArtistException;
+import com.pluralsight.entertainmentmgr.track.entities.Track;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,13 @@ public class ArtistDataService {
 
     @Transactional
     public void deleteArtist(@NonNull Long artistId) {
-        artistRepository.findById(artistId).ifPresent(artistRepository::delete);
+        Artist artist = artistRepository.findById(artistId).orElse(null);
+        if (artist == null) { throw new InvalidArtistException("No artist found"); }
+
+        for(Track track : artist.getTracks()) {
+            track.getArtists().remove(artist);
+        }
+        artistRepository.delete(artist);
     }
 
     private Artist findAndReturnArtistEntity(Optional<Artist> optionalArtist) {
