@@ -2,12 +2,13 @@ package com.pluralsight.entertainmentmgr.artist.entities;
 
 import com.pluralsight.entertainmentmgr.artist.enums.ArtistType;
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.pluralsight.entertainmentmgr.track.entities.Track;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -15,22 +16,22 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
+@Table(name = "artist")
 public class Artist extends BaseEntity {
 
-    @EqualsAndHashCode.Include
     private String name;
 
-    @EqualsAndHashCode.Include
     private ArtistType artistType;
-
-    // TODO: Leverage genres table for list of genres
 
     private String biography;
 
-    @EqualsAndHashCode.Include
     private String nationality;
 
-    @EqualsAndHashCode.Include
     private int yearFounded;
+
+    @ManyToMany(mappedBy = "artists", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    private Set<Track> tracks = new HashSet<>();
 
 }
