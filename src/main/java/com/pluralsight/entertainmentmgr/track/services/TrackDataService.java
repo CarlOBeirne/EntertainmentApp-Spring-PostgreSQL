@@ -4,6 +4,10 @@ import com.pluralsight.entertainmentmgr.artist.entities.Artist;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidTrackException;
+import com.pluralsight.entertainmentmgr.genre.entities.Genre;
+import com.pluralsight.entertainmentmgr.genre.mapper.GenreMapper;
+import com.pluralsight.entertainmentmgr.genre.models.GenreDto;
+import com.pluralsight.entertainmentmgr.genre.service.GenreDataService;
 import com.pluralsight.entertainmentmgr.track.entities.Track;
 import com.pluralsight.entertainmentmgr.track.mapper.TrackMapper;
 import com.pluralsight.entertainmentmgr.track.models.TrackDto;
@@ -26,10 +30,12 @@ import java.util.stream.Collectors;
 public class TrackDataService {
 
     private final TrackRepository trackRepository;
+    private final TrackMapper trackMapper;
 
     private final ArtistRepository artistRepository;
 
-    private final TrackMapper trackMapper;
+    private final GenreMapper genreMapper;
+    private final GenreDataService genreDataService;
 
     public Optional<TrackDto> findTrackById(@NonNull Long trackId) {
         return trackRepository.findById(trackId)
@@ -50,8 +56,14 @@ public class TrackDataService {
         Track entity = trackMapper.toEntity(trackDto);
         Set<Artist> artists = addArtist(trackDto);
         entity.setArtists(artists);
+
+        Genre genre = addGenre(trackDto);
+        entity.setGenre(genre);
+
         return trackMapper.toDTO(trackRepository.save(entity));
     }
+
+
 
     @Transactional
     public TrackDto updateTrack(Long id, TrackDto trackDto) {
@@ -100,13 +112,27 @@ public class TrackDataService {
         return artists;
     }
 
-    @Transactional
-    public TrackDto removeArtist(Long trackId, Long artistId) {
-        Track track = trackRepository.findById(trackId).orElse(null);
-        Artist artist = artistRepository.findById(artistId).orElse(null);
-        if (track == null || artist == null) { return null; }
+    // DOES NOT SEEM TO BE A NEED FOR IT ?
+//    @Transactional
+//    public TrackDto removeArtist(Long trackId, Long artistId) {
+//        Track track = trackRepository.findById(trackId).orElse(null);
+//        Artist artist = artistRepository.findById(artistId).orElse(null);
+//        if (track == null || artist == null) { return null; }
+//
+//        track.getArtists().remove(artist);
+//        return trackMapper.toDTO(trackRepository.save(track));
+//    }
 
-        track.getArtists().remove(artist);
-        return trackMapper.toDTO(trackRepository.save(track));
+    private Genre addGenre(@NonNull TrackDto trackDto) {
+        Optional<GenreDto> genre = genreDataService.findGenreById(trackDto.getGenre().getId());
+        return genreMapper.toEntity(genre.get());
     }
+
+
+    // ALSO SEEMS LIKE THERE IS NO NEED ?
+//    private Genre removeGenre(@NonNull TrackDto trackDto) {
+//        Optional<GenreDto> genre = genreDataService.findGenreById(trackDto.getGenre().getId());
+//        return genreMapper.toEntity(genre.get());
+//    }
+
 }

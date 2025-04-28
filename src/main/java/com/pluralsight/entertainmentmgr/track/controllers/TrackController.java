@@ -115,9 +115,9 @@ public class TrackController {
         }
     }
 
-    @PostMapping("/{trackId}/remove-artist/{artistId}")
-    public ResponseEntity<TrackDto> removeArtistFromTrack(@PathVariable Long trackId, @PathVariable Long artistId) {
-        TrackDto track = trackDataService.removeArtist(trackId, artistId);
-        return track != null ? ResponseEntity.ok(track) : ResponseEntity.badRequest().build();
-    }
+//    @PostMapping("/{trackId}/remove-artist/{artistId}")
+//    public ResponseEntity<TrackDto> removeArtistFromTrack(@PathVariable Long trackId, @PathVariable Long artistId) {
+//        TrackDto track = trackDataService.removeArtist(trackId, artistId);
+//        return track != null ? ResponseEntity.ok(track) : ResponseEntity.badRequest().build();
+//    }
 }

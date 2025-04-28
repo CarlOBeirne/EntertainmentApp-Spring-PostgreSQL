@@ -2,6 +2,7 @@ package com.pluralsight.entertainmentmgr.track.entities;
 
 import com.pluralsight.entertainmentmgr.artist.entities.Artist;
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
+import com.pluralsight.entertainmentmgr.genre.entities.Genre;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,10 @@ public class Track extends BaseEntity {
 
     @EqualsAndHashCode.Include
     private int beatsPerMinute;
+
+    @ManyToOne
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
