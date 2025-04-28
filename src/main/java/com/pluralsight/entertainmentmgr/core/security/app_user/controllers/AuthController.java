@@ -1,5 +1,7 @@
 package com.pluralsight.entertainmentmgr.core.security.app_user.controllers;
 
+import com.pluralsight.entertainmentmgr.core.role.entities.Role;
+import com.pluralsight.entertainmentmgr.core.role.repositories.RoleRepository;
 import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
 import com.pluralsight.entertainmentmgr.core.security.app_user.models.LoginRequest;
 import com.pluralsight.entertainmentmgr.core.security.app_user.models.RegistrationRequest;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,6 +32,7 @@ import java.util.Set;
 public class AuthController {
 
     private final AppUserRepository appUserRepository;
+    private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -38,9 +42,12 @@ public class AuthController {
         if (appUserRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
+        Set<Role> defaultRoles = new HashSet<>();
+        roleRepository.findByName("USER").ifPresent(defaultRoles::add);
         AppUser user = AppUser.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .roles(defaultRoles)
                 .build();
         appUserRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
@@ -53,16 +60,14 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/{id}/permissions/add")
-    public ResponseEntity<String> addPermission(@NonNull @PathVariable Long id, @NonNull @NotEmpty @RequestBody Set<String> authorities) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> addPermission(@NonNull @PathVariable Long id, @NonNull @NotEmpty @RequestBody Set<Role> roles) {
         try {
             Optional<AppUser> optionalAppUser = appUserRepository.findById(id);
             if (optionalAppUser.isPresent()) {
                 AppUser appUser = optionalAppUser.get();
-                for (String authority : authorities) {
-                    appUser.addAuthorities(authority);
-                }
+                appUser.getRoles().addAll(roles);
                 appUserRepository.save(appUser);
                 return ResponseEntity.status(HttpStatus.OK).body("Permission added successfully");
             }
@@ -71,7 +76,6 @@ public class AuthController {
             log.error("Error occurred while attempting to update authorities", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error occurred");
         }
-
     }
 
 }

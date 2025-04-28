@@ -1,13 +1,14 @@
 package com.pluralsight.entertainmentmgr.core.security.app_user.entities;
 
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.*;
+import com.pluralsight.entertainmentmgr.core.role.entities.Role;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,15 +27,19 @@ public class AppUser extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Set<String> authorities = new HashSet<>(Arrays.asList("USER"));
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
-    public void addAuthorities(String authority) {
-        if (authorities == null || authorities.isEmpty()) {
+    public void addRoles(Role role) {
+        if (roles == null || roles.isEmpty()) {
             return;
         }
-        this.authorities.add(authority);
+        roles.add(role);
     }
 
 }

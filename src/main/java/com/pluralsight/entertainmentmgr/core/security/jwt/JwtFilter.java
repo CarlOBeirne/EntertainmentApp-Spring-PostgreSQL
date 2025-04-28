@@ -43,7 +43,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     .map(user -> User
                             .withUsername(user.getUsername())
                             .password(user.getPassword())
-                            .authorities(user.getAuthorities().toArray(new String[0]))
+                            .roles(user.getRoles()
+                                    .stream()
+                                    .map(role -> role.getName().toUpperCase())
+                                    .toArray(String[]::new))
                             .build())
                     .orElse(null);
             if (userDetails != null && jwtUtil.validateToken(token)) {
