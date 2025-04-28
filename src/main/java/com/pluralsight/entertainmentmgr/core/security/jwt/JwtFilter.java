@@ -1,6 +1,7 @@
 package com.pluralsight.entertainmentmgr.core.security.jwt;
 
 import com.pluralsight.entertainmentmgr.core.security.app_user.repositories.AppUserRepository;
+import com.pluralsight.entertainmentmgr.core.security.permission.entities.Permission;
 import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @NonNullApi
@@ -40,14 +42,21 @@ public class JwtFilter extends OncePerRequestFilter {
         username = jwtUtil.extractUsername(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = appUserRepository.findByUsername(username)
-                    .map(user -> User
-                            .withUsername(user.getUsername())
-                            .password(user.getPassword())
-                            .roles(user.getRoles()
-                                    .stream()
-                                    .map(role -> role.getName().toUpperCase())
-                                    .toArray(String[]::new))
-                            .build())
+                    .map(user -> {
+                        ArrayList<String> authorities = new ArrayList<>();
+                        authorities.addAll(user.getRoles()
+                                .stream()
+                                .map(role -> "ROLE_" + role.getName().toUpperCase())
+                                .toList());
+                        authorities.addAll(user.getPermissions()
+                                .stream()
+                                .map(Permission::getName)
+                                .toList());
+                        return User
+                                .withUsername(user.getUsername())
+                                .password(user.getPassword())
+                                .authorities(authorities.toArray(String[]::new))
+                                .build();})
                     .orElse(null);
             if (userDetails != null && jwtUtil.validateToken(token)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,

@@ -1,12 +1,14 @@
 package com.pluralsight.entertainmentmgr.core.security.app_user.controllers;
 
-import com.pluralsight.entertainmentmgr.core.role.entities.Role;
-import com.pluralsight.entertainmentmgr.core.role.repositories.RoleRepository;
 import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
 import com.pluralsight.entertainmentmgr.core.security.app_user.models.LoginRequest;
 import com.pluralsight.entertainmentmgr.core.security.app_user.models.RegistrationRequest;
 import com.pluralsight.entertainmentmgr.core.security.app_user.repositories.AppUserRepository;
 import com.pluralsight.entertainmentmgr.core.security.jwt.JwtUtil;
+import com.pluralsight.entertainmentmgr.core.security.permission.entities.Permission;
+import com.pluralsight.entertainmentmgr.core.security.permission.repositories.PermissionRepository;
+import com.pluralsight.entertainmentmgr.core.security.role.entities.Role;
+import com.pluralsight.entertainmentmgr.core.security.role.repositories.RoleRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.NonNull;
@@ -33,6 +35,7 @@ public class AuthController {
 
     private final AppUserRepository appUserRepository;
     private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -43,11 +46,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
         Set<Role> defaultRoles = new HashSet<>();
+        Set<Permission> defaultPermissions = new HashSet<>();
         roleRepository.findByName("USER").ifPresent(defaultRoles::add);
+        permissionRepository.findByName("LISTENER").ifPresent(defaultPermissions::add);
         AppUser user = AppUser.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(defaultRoles)
+                .permissions(defaultPermissions)
                 .build();
         appUserRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
@@ -60,9 +66,10 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    @PostMapping("/{id}/permissions/add")
+    @PostMapping("/{id}/roles/add")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> addPermission(@NonNull @PathVariable Long id, @NonNull @NotEmpty @RequestBody Set<Role> roles) {
+    public ResponseEntity<String> addRole(@NonNull @PathVariable Long id,
+                                          @NonNull @NotEmpty @RequestBody Set<Role> roles) {
         try {
             Optional<AppUser> optionalAppUser = appUserRepository.findById(id);
             if (optionalAppUser.isPresent()) {
@@ -70,6 +77,63 @@ public class AuthController {
                 appUser.getRoles().addAll(roles);
                 appUserRepository.save(appUser);
                 return ResponseEntity.status(HttpStatus.OK).body("Permission added successfully");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User could not be found");
+        } catch (Exception e) {
+            log.error("Error occurred while attempting to update authorities", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error occurred");
+        }
+    }
+
+    @PostMapping("/{id}/roles/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> removeRole(@NonNull @PathVariable Long id,
+                                             @NonNull @NotEmpty @RequestBody Set<Role> roles) {
+        try {
+            Optional<AppUser> optionalAppUser = appUserRepository.findById(id);
+            if (optionalAppUser.isPresent()) {
+                AppUser appUser = optionalAppUser.get();
+                appUser.getRoles().removeAll(roles);
+                appUserRepository.save(appUser);
+                return ResponseEntity.status(HttpStatus.OK).body("Permission removed successfully");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User could not be found");
+        } catch (Exception e) {
+            log.error("Error occurred while attempting to update authorities", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error occurred");
+        }
+    }
+
+    @PostMapping("/{id}/permissions/add")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<String> addPermission(@NonNull @PathVariable Long id,
+                                                @NonNull @NotEmpty @RequestBody Set<Permission> permissions) {
+        try {
+            Optional<AppUser> optionalAppUser = appUserRepository.findById(id);
+            if (optionalAppUser.isPresent()) {
+                AppUser appUser = optionalAppUser.get();
+                appUser.getPermissions().addAll(permissions);
+                appUserRepository.save(appUser);
+                return ResponseEntity.status(HttpStatus.OK).body("Permission added successfully");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User could not be found");
+        } catch (Exception e) {
+            log.error("Error occurred while attempting to update authorities", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error occurred");
+        }
+    }
+
+    @PostMapping("/{id}/permissions/remove")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<String> removePermission(@NonNull @PathVariable Long id,
+                                                @NonNull @NotEmpty @RequestBody Set<Permission> permissions) {
+        try {
+            Optional<AppUser> optionalAppUser = appUserRepository.findById(id);
+            if (optionalAppUser.isPresent()) {
+                AppUser appUser = optionalAppUser.get();
+                appUser.getPermissions().removeAll(permissions);
+                appUserRepository.save(appUser);
+                return ResponseEntity.status(HttpStatus.OK).body("Permission removed successfully");
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User could not be found");
         } catch (Exception e) {

@@ -5,6 +5,8 @@ import com.pluralsight.entertainmentmgr.artist.mapper.ArtistMapper;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidArtistException;
+import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
+import com.pluralsight.entertainmentmgr.core.security.app_user.repositories.AppUserRepository;
 import com.pluralsight.entertainmentmgr.track.entities.Track;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
@@ -22,6 +24,7 @@ public class ArtistDataService {
 
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
+    private final AppUserRepository appUserRepository;
 
     public Optional<ArtistDto> findArtistById(@NonNull Long artistId) {
         Optional<Artist> optionalArtist = artistRepository.findById(artistId);
@@ -46,6 +49,11 @@ public class ArtistDataService {
             throw new InvalidArtistException("Attempted to create a new artist that already has an Id");
         }
         Artist artistEntity = artistMapper.toEntity(artistDto);
+        Optional<AppUser> optionalUser = appUserRepository.findByUsername(artistDto.getAppUserUsername());
+        if (optionalUser.isEmpty()) {
+            throw new InvalidArtistException("Attempted to create an artist with an invalid username");
+        }
+        artistEntity.setUser(optionalUser.get());
         Artist persistedArtist = artistRepository.save(artistEntity);
         return artistMapper.toDTO(persistedArtist);
     }
@@ -70,8 +78,9 @@ public class ArtistDataService {
     @Transactional
     public void deleteArtist(@NonNull Long artistId) {
         Artist artist = artistRepository.findById(artistId).orElse(null);
-        if (artist == null) { throw new InvalidArtistException("No artist found"); }
-
+        if (artist == null) {
+            throw new InvalidArtistException("No artist found");
+        }
         for(Track track : artist.getTracks()) {
             track.getArtists().remove(artist);
         }

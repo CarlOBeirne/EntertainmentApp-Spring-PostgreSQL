@@ -1,6 +1,6 @@
-package com.pluralsight.entertainmentmgr.core.role.repositories;
+package com.pluralsight.entertainmentmgr.core.security.role.repositories;
 
-import com.pluralsight.entertainmentmgr.core.role.entities.Role;
+import com.pluralsight.entertainmentmgr.core.security.role.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
