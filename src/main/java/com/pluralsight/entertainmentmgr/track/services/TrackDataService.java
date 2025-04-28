@@ -63,10 +63,8 @@ public class TrackDataService {
         return trackMapper.toDTO(trackRepository.save(entity));
     }
 
-
-
     @Transactional
-    public TrackDto updateTrack(Long id, TrackDto trackDto) {
+    public TrackDto updateTrack(@NonNull Long id, @NonNull TrackDto trackDto) {
         if (trackDto.getId() == null) {
             throw new InvalidTrackException("Track ID does not exist.");
         }
@@ -85,7 +83,7 @@ public class TrackDataService {
     }
 
     @Transactional
-    public void deleteTrack(Long trackId) {
+    public void deleteTrack(@NonNull Long trackId) {
         trackRepository.deleteById(trackId);
     }
 
