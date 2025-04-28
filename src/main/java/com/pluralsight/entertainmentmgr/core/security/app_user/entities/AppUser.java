@@ -1,7 +1,8 @@
 package com.pluralsight.entertainmentmgr.core.security.app_user.entities;
 
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
-import com.pluralsight.entertainmentmgr.core.role.entities.Role;
+import com.pluralsight.entertainmentmgr.core.security.permission.entities.Permission;
+import com.pluralsight.entertainmentmgr.core.security.role.entities.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,11 +36,11 @@ public class AppUser extends BaseEntity {
     )
     private Set<Role> roles = new HashSet<>();
 
-    public void addRoles(Role role) {
-        if (roles == null || roles.isEmpty()) {
-            return;
-        }
-        roles.add(role);
-    }
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_permission",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 }

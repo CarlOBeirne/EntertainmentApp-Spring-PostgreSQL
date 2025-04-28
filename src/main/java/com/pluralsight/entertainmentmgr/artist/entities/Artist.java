@@ -2,6 +2,7 @@ package com.pluralsight.entertainmentmgr.artist.entities;
 
 import com.pluralsight.entertainmentmgr.artist.enums.ArtistType;
 import com.pluralsight.entertainmentmgr.core.auditable.entity.BaseEntity;
+import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
 import com.pluralsight.entertainmentmgr.track.entities.Track;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,5 +34,9 @@ public class Artist extends BaseEntity {
     @Builder.Default
     @EqualsAndHashCode.Exclude
     private Set<Track> tracks = new HashSet<>();
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, updatable = false, unique = true)
+    private AppUser user;
 
 }
