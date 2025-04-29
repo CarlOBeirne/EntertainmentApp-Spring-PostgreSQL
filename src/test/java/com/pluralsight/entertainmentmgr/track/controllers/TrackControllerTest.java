@@ -68,7 +68,6 @@ public class TrackControllerTest {
         artistRepository.deleteAll();
         appUserRepository.deleteAll();
         genreRepository.deleteAll();
-
     }
 
     @Test
