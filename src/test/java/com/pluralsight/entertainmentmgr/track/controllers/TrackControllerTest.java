@@ -64,13 +64,10 @@ public class TrackControllerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        genreRepository.deleteAll();
         trackRepository.deleteAll();
         artistRepository.deleteAll();
         appUserRepository.deleteAll();
-
-
-
+        genreRepository.deleteAll();
 
     }
 
