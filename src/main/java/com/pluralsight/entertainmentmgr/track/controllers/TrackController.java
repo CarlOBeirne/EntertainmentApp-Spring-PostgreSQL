@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -60,7 +61,7 @@ public class TrackController {
         }
     }
 
-//    @PreAuthorize("hasAuthority('ADMIN', 'ARTIST')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('CREATOR')")
     @PostMapping(path = "/new")
     public ResponseEntity<TrackDto> createTrack(@NonNull @RequestBody TrackDto trackDto) {
         try {
@@ -80,7 +81,7 @@ public class TrackController {
 
     }
 
-    //    @PreAuthorize("hasAuthority('ADMIN', 'ARTIST')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('CREATOR')")
     @PutMapping("/update/{id}")
     public ResponseEntity<TrackDto> updateTrack(@RequestBody TrackDto trackDto, @PathVariable Long id) {
         try {
@@ -98,7 +99,7 @@ public class TrackController {
         }
     }
 
-    //    @PreAuthorize("hasAuthority('ADMIN', 'ARTIST')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('CREATOR')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteTrackById(@PathVariable Long id) {
         try {
