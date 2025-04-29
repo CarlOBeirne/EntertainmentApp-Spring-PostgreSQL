@@ -32,7 +32,7 @@ public class ArtistController {
                 log.warn("Artist was passed with an Id of {} (expecting Id to be null)", artist.getId());
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
-            return ResponseEntity.ok(artistDataService.createArtist(artist));
+            return ResponseEntity.status(201).body(artistDataService.createArtist(artist));
         } catch (InvalidArtistException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -54,7 +54,7 @@ public class ArtistController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
             boolean isAdmin = user.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
-            if (!isAdmin && !artistDto.getAppUserUsername().equals(user.getUsername())) {
+            if (!isAdmin && !artistDto.getAppUser().getUsername().equals(user.getUsername())) {
                 log.warn("Attempt to update artist \"{}\" was made by a user with different username \"{}\"", artistDto.getName(), user.getUsername());
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
             }

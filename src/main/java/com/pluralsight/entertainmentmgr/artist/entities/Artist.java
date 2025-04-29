@@ -11,7 +11,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
@@ -31,12 +32,11 @@ public class Artist extends BaseEntity {
     private int yearFounded;
 
     @ManyToMany(mappedBy = "artists", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @Builder.Default
     @EqualsAndHashCode.Exclude
     private Set<Track> tracks = new HashSet<>();
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false, unique = true)
-    private AppUser user;
+    private AppUser appUser;
 
 }

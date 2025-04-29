@@ -85,7 +85,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/{id}/roles/add")
+    @PostMapping("/{id}/roles/remove")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> removeRole(@NonNull @PathVariable Long id,
                                              @NonNull @NotEmpty @RequestBody Set<Role> roles) {

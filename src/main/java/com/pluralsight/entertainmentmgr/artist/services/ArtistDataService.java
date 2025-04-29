@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class ArtistDataService {
     }
 
     public List<ArtistDto> findAllArtists() {
+        Year year = Year.now();
         return artistRepository.findAll().stream()
                 .map(artistMapper::toDTO)
                 .toList();
@@ -49,12 +51,13 @@ public class ArtistDataService {
             throw new InvalidArtistException("Attempted to create a new artist that already has an Id");
         }
         Artist artistEntity = artistMapper.toEntity(artistDto);
-        Optional<AppUser> optionalUser = appUserRepository.findByUsername(artistDto.getAppUserUsername());
+        Optional<AppUser> optionalUser = appUserRepository.findByUsername(artistDto.getAppUser().getUsername());
         if (optionalUser.isEmpty()) {
             throw new InvalidArtistException("Attempted to create an artist with an invalid username");
         }
-        artistEntity.setUser(optionalUser.get());
+        artistEntity.setAppUser(optionalUser.get());
         Artist persistedArtist = artistRepository.save(artistEntity);
+        log.info("New artist created with id {}", persistedArtist.getId());
         return artistMapper.toDTO(persistedArtist);
     }
 

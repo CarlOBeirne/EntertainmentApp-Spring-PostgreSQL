@@ -2,6 +2,7 @@ package com.pluralsight.entertainmentmgr.artist.models;
 
 import com.pluralsight.entertainmentmgr.artist.enums.ArtistType;
 import com.pluralsight.entertainmentmgr.core.auditable.models.BaseDto;
+import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,6 @@ public class ArtistDto extends BaseDto {
     private String biography;
     private String nationality;
     private int yearFounded;
-    private String appUserUsername;
+    private AppUser appUser;
 
 }

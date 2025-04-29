@@ -5,6 +5,8 @@ import com.pluralsight.entertainmentmgr.artist.mapper.ArtistMapper;
 import com.pluralsight.entertainmentmgr.artist.models.ArtistDto;
 import com.pluralsight.entertainmentmgr.artist.repositories.ArtistRepository;
 import com.pluralsight.entertainmentmgr.core.exceptions.InvalidArtistException;
+import com.pluralsight.entertainmentmgr.core.security.app_user.entities.AppUser;
+import com.pluralsight.entertainmentmgr.core.security.app_user.repositories.AppUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +30,12 @@ public class ArtistDataServiceTest {
     @Mock
     private ArtistMapper artistMapperMock;
 
+    @Mock
+    private AppUser appUserMock;
+
+    @Mock
+    private AppUserRepository appUserRepositoryMock;
+
     @InjectMocks
     private ArtistDataService artistDataService;
 
@@ -37,7 +45,6 @@ public class ArtistDataServiceTest {
     @Test
     void findArtistById_shouldReturnArtistMatchingId() {
         // Arrange
-//        ArtistMapper mockArtistMapper = mock(ArtistMapper.class);
         Artist artist = Artist.builder().id(1L).build();
         ArtistDto artistDto = ArtistDto.builder().id(1L).build();
         when(artistRepositoryMock.findById(artist.getId())).thenReturn(Optional.of(artist));
@@ -74,10 +81,10 @@ public class ArtistDataServiceTest {
 
     @Test
     void findAllArtists_shouldReturnAllArtists() {
+        // Arrange
         Artist artist1 = Artist.builder().id(1L).build();
         ArtistDto artist1Dto = ArtistDto.builder().id(1L).build();
         List<Artist> artists = List.of(artist1);
-        // Arrange
         when(artistRepositoryMock.findAll()).thenReturn(artists);
         when(artistMapperMock.toDTO(artist1)).thenReturn(artist1Dto);
 
@@ -94,19 +101,21 @@ public class ArtistDataServiceTest {
 
     @Test
     void createArtist_shouldThrowExceptionIfArtistIsNull() {
-        NullPointerException nullArtistException = assertThrows(NullPointerException.class, () -> artistDataService.createArtist(null));
+        assertThrows(NullPointerException.class, () -> artistDataService.createArtist(null));
         verify(artistRepositoryMock, times(0)).save(any());
     }
 
     @Test
     void createArtist_shouldCreateNewArtistWhenIdIsNull() {
         // Arrange
+        AppUser user = AppUser.builder().id(1L).build();
         ArtistDto artistDto = ArtistDto.builder().id(null).build();
         Artist artist = Artist.builder().id(1L).build();
-        ArtistDto expectedArtistDto = ArtistDto.builder().id(1L).build();
+        ArtistDto expectedArtistDto = ArtistDto.builder().id(1L).appUser(user).build();
         when(artistMapperMock.toEntity(artistDto)).thenReturn(artist);
         when(artistMapperMock.toDTO(any())).thenReturn(expectedArtistDto);
         when(artistRepositoryMock.save(any(Artist.class))).thenReturn(artist);
+        when(appUserRepositoryMock.findByUsername(artistDto.getAppUser().getUsername())).thenReturn(Optional.of(appUserMock));
 
         // Act
         ArtistDto persistedArtist = artistDataService.createArtist(artistDto);
@@ -184,7 +193,6 @@ public class ArtistDataServiceTest {
     void deleteArtistById_shouldDeleteArtistAndReturnTrueWhenIdIsNotNullAndIdExistsInDatastore() {
         // Arrange
         Artist artist = Artist.builder().id(1L).build();
-        assertNotNull(artist);
         when(artistRepositoryMock.findById(artist.getId())).thenReturn(Optional.of(artist));
         doNothing().when(artistRepositoryMock).delete(artistCaptor.capture());
 
